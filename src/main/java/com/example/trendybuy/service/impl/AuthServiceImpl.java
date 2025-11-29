@@ -37,6 +37,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final EmailService emailService;
 
+
+
     private static final long OTP_TTL = 300;
 
     private String generateOtp() {
