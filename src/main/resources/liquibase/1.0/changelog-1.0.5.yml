@@ -1,0 +1,127 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251009
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: orders
+            columns:
+              - column:
+                  name: order_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: primary_orders_id
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: order_date
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: payment_status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: total_amount
+                  type: DECIMAL(12,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: discount_amount
+                  type: DECIMAL(12,2)
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: shipping_address_text
+                  type: TEXT
+
+              - column:
+                  name: shipping_city
+                  type: VARCHAR(100)
+
+              - column:
+                  name: shipping_postal_code
+                  type: VARCHAR(20)
+
+              - column:
+                  name: notes
+                  type: TEXT
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        # FK — schema ilə
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: orders
+            baseColumnNames: user_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_orders_user
+            onDelete: RESTRICT
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: orders
+#            constraintName: chk_orders_total_nonneg
+#            checkConstraint: "total_amount >= 0"
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: orders
+#            constraintName: chk_orders_discount_nonneg
+#            checkConstraint: "discount_amount >= 0"
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: orders
+#            constraintName: chk_orders_discount_le_total
+#            checkConstraint: "discount_amount <= total_amount"
+
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: orders
+            indexName: idx_orders_user_date
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: order_date
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: orders
+            indexName: idx_orders_status
+            columns:
+              - column:
+                  name: status

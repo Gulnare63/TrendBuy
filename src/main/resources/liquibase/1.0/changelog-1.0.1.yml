@@ -1,0 +1,93 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251007
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: shopping_cart
+            columns:
+              - column:
+                  name: cart_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: primary_shopping_cart_id
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: added_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        # Eyni user + product üçün dublikat sətirlərin qarşısını al
+        - addUniqueConstraint:
+            schemaName: ecommerce
+            tableName: shopping_cart
+            columnNames: user_id, product_id
+            constraintName: uq_cart_user_product
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: shopping_cart
+#            constraintName: chk_cart_quantity_positive
+#            checkConstraint: "quantity > 0"
+
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: shopping_cart
+            baseColumnNames: user_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_shopping_cart_user
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: shopping_cart
+            baseColumnNames: product_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: products
+            referencedColumnNames: product_id
+            constraintName: fk_shopping_cart_product
+            onDelete: RESTRICT
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: shopping_cart
+            indexName: idx_cart_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: shopping_cart
+            indexName: idx_cart_product
+            columns:
+              - column:
+                  name: product_id

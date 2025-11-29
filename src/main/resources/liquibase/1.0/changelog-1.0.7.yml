@@ -1,0 +1,96 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251011
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: payments
+            columns:
+              - column:
+                  name: payment_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: primary_payments_id
+                    nullable: false
+
+              - column:
+                  name: order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: payment_date
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: payment_method
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: amount
+                  type: DECIMAL(12,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: provider_ref
+                  type: VARCHAR(100)
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: payments
+#            constraintName: chk_payments_amount_nonneg
+#            checkConstraint: "amount >= 0"
+
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: payments
+            baseColumnNames: order_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: orders
+            referencedColumnNames: order_id
+            constraintName: fk_payments_order
+            onDelete: CASCADE
+
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: payments
+            indexName: idx_payments_order
+            columns:
+              - column:
+                  name: order_id
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: payments
+            indexName: idx_payments_status_date
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: payment_date
+
+
+        # - addUniqueConstraint:
+        #     schemaName: ecommerce
+        #     tableName: payments
+        #     columnNames: provider_ref
+        #     constraintName: uq_payments_provider_ref

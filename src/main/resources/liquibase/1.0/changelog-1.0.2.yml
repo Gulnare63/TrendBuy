@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251005
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: discounts
+            columns:
+              - column:
+                  name: discount_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: primary_discounts_id
+                    nullable: false
+
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: discount_percent
+                  type: DECIMAL(5,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: start_date
+                  type: TIMESTAMP
+                  # NULL ola bilər, yəni limitsiz endirim üçün
+
+              - column:
+                  name: end_date
+                  type: TIMESTAMP
+                  # NULL ola bilər, yəni limitsiz endirim üçün
+
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: discounts
+            baseColumnNames: product_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: products
+            referencedColumnNames: product_id
+            constraintName: fk_discounts_product
+            onDelete: CASCADE
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: discounts
+#            constraintName: chk_discount_percent_range
+#            checkConstraint: "discount_percent >= 0 AND discount_percent <= 100"
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: discounts
+#            constraintName: chk_discount_dates
+#            checkConstraint: "end_date IS NULL OR start_date IS NULL OR end_date >= start_date"

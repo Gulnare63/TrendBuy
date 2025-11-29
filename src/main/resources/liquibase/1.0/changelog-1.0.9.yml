@@ -1,0 +1,128 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251002
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: products
+            columns:
+              - column:
+                  name: product_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: primary_products_id
+                    nullable: false
+
+              - column:
+                  name: category_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: TEXT
+
+              - column:
+                  name: price
+                  type: DECIMAL(12,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: stock_quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: products
+            baseColumnNames: category_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: product_categories
+            referencedColumnNames: category_id
+            constraintName: fk_products_category
+            onDelete: RESTRICT
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: products
+#            constraintName: chk_products_price_nonneg
+#            checkConstraint: "price >= 0"
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: products
+#            constraintName: chk_products_stock_nonneg
+#            checkConstraint: "stock_quantity >= 0"
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: products
+#            constraintName: chk_products_name_not_blank
+#            checkConstraint: "btrim(name) <> ''"
+
+
+        - addUniqueConstraint:
+            schemaName: ecommerce
+            tableName: products
+            columnNames: category_id, name
+            constraintName: uq_products_category_name
+
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: products
+            indexName: idx_products_category
+            columns:
+              - column:
+                  name: category_id
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: products
+            indexName: idx_products_active
+            columns:
+              - column:
+                  name: is_active
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: products
+            indexName: idx_products_name
+            columns:
+              - column:
+                  name: name

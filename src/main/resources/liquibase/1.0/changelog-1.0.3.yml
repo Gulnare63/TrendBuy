@@ -1,0 +1,128 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251016
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: history
+            columns:
+              - column:
+                  name: history_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: primary_history_id
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: BIGINT
+
+              - column:
+                  name: order_id
+                  type: BIGINT
+
+              - column:
+                  name: payment_id
+                  type: BIGINT
+
+
+              - column:
+                  name: change_description
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: change_timestamp
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: history_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: history
+#            constraintName: chk_history_has_ref
+#            checkConstraint: "(user_id IS NOT NULL OR order_id IS NOT NULL OR payment_id IS NOT NULL)"
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: history
+#            constraintName: chk_history_desc_not_blank
+#            checkConstraint: "btrim(change_description) <> ''"
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: history
+#            constraintName: chk_history_type_format
+#            checkConstraint: "history_type ~ '^[A-Z0-9_\\-]+$'"
+
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: history
+            baseColumnNames: user_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_history_user
+            onDelete: SET NULL
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: history
+            baseColumnNames: order_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: orders
+            referencedColumnNames: order_id
+            constraintName: fk_history_order
+            onDelete: SET NULL
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: history
+            baseColumnNames: payment_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: payments
+            referencedColumnNames: payment_id
+            constraintName: fk_history_payment
+            onDelete: SET NULL
+
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: history
+            indexName: idx_history_order_time
+            columns:
+              - column:
+                  name: order_id
+              - column:
+                  name: change_timestamp
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: history
+            indexName: idx_history_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: history
+            indexName: idx_history_payment
+            columns:
+              - column:
+                  name: payment_id

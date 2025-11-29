@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251012
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: sellers
+            columns:
+              - column:
+                  name: seller_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_sellers_id
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+
+              - column:
+                  name: shop_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: company_name
+                  type: VARCHAR(150)
+
+              - column:
+                  name: tax_number
+                  type: VARCHAR(50)
+
+              - column:
+                  name: iban
+                  type: VARCHAR(50)
+
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: balance
+                  type: NUMERIC(14,2)
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: verification_notes
+                  type: TEXT
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: sellers
+            baseColumnNames: user_id
+            constraintName: fk_sellers_user
+            referencedTableSchemaName: ecommerce
+            referencedTableName: users
+            referencedColumnNames: user_id
+
+        - createIndex:
+            tableName: sellers
+            schemaName: ecommerce
+            indexName: idx_sellers_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: sellers
+            schemaName: ecommerce
+            indexName: idx_sellers_status
+            columns:
+              - column:
+                  name: status

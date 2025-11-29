@@ -1,0 +1,84 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251001
+      author: Gulnare Islamova
+      changes:
+        - createTable:
+            schemaName: ecommerce
+            tableName: product_categories
+            columns:
+              - column:
+                  name: category_id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: primary_product_categories_id
+                    nullable: false
+
+              - column:
+                  name: category_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: parent_id
+                  type: BIGINT
+
+        - addUniqueConstraint:
+            schemaName: ecommerce
+            tableName: product_categories
+            columnNames: category_name
+            constraintName: uq_product_categories_name
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: product_categories
+#            constraintName: chk_product_categories_name_not_blank
+#            checkConstraint: "btrim(category_name) <> ''"
+
+
+#        - addCheckConstraint:
+#            schemaName: ecommerce
+#            tableName: product_categories
+#            constraintName: chk_product_categories_not_self_parent
+#            checkConstraint: "(parent_id IS NULL OR parent_id <> category_id)"
+
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: product_categories
+            baseColumnNames: parent_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: product_categories
+            referencedColumnNames: category_id
+            constraintName: fk_product_categories_parent
+            onDelete: SET NULL
+
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: product_categories
+            indexName: idx_product_categories_parent
+            columns:
+              - column:
+                  name: parent_id
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: product_categories
+            indexName: idx_product_categories_active_name
+            columns:
+              - column:
+                  name: is_active
+              - column:
+                  name: category_name
