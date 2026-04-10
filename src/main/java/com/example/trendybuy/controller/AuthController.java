@@ -69,12 +69,12 @@ public class AuthController {
         return new MessageResponse("Password successfully changed");
     }
 
-
-    @GetMapping("/me")
-    public UserDto getCurrentUser()
-    {
-        return authService.getCurrentUser();
-    }
+//    bunu  usere kecirmeyi unutma
+//    @GetMapping("/me")
+//    public UserDto getCurrentUser()
+//    {
+//        return authService.getCurrentUser();
+//    }
 
 
 

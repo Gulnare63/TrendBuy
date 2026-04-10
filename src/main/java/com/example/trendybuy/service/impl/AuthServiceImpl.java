@@ -1,9 +1,12 @@
 package com.example.trendybuy.service.impl;
 
+import com.example.trendybuy.dao.entity.SellerProfileEntity;
 import com.example.trendybuy.dao.entity.UserEntity;
+import com.example.trendybuy.dao.repository.SellerProfileRepository;
 import com.example.trendybuy.dao.repository.UserRepository;
 import com.example.trendybuy.dto.request.*;
 import com.example.trendybuy.enums.OtpType;
+import com.example.trendybuy.enums.SellerStatus;
 import com.example.trendybuy.enums.UserRole;
 import com.example.trendybuy.exception.*;
 import com.example.trendybuy.mapper.UserMapper;
@@ -36,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final EmailService emailService;
+    private final SellerProfileRepository sellerProfileRepository;
 
 
 
@@ -161,11 +165,11 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-
     @Override
     public void login(LoginRequest request) {
 
         UserEntity user;
+
 
         if (request.getIdentifier().contains("@")) {
             user = userRepository.findByEmail(request.getIdentifier())
@@ -179,19 +183,60 @@ public class AuthServiceImpl implements AuthService {
             throw new PasswordCannotMatchException(ExceptionCode.PASSWORD_CANNOT_MATCH);
         }
 
-        if (!user.isActive()) {
+        if (user.getRole() == UserRole.CUSTOMER && !user.isActive()) {
             throw new AccountNotActiveException(ExceptionCode.ACCOUNT_NOT_ACTIVE);
         }
+
+
+        if (user.getRole() == UserRole.SELLER) {
+            SellerProfileEntity seller = sellerProfileRepository.findByUser(user)
+                    .orElseThrow(() -> new NotFoundException(ExceptionCode.SELLER_NOT_FOUND));
+
+            if (seller.getStatus() != SellerStatus.ACTIVE) {
+                throw new AccountNotActiveException(ExceptionCode.ACCOUNT_NOT_ACTIVE);
+            }
+        }
+
 
         String otp = generateOtp();
         otpService.saveOtp(OtpType.LOGIN, request.getIdentifier(), otp, OTP_TTL);
         log.info("LOGIN OTP -> {}", otp);
 
-
         if (request.getIdentifier().contains("@")) {
             emailService.sendOtpEmail(user.getEmail(), otp);
         }
     }
+
+//    @Override
+//    public void login(LoginRequest request) {
+//
+//        UserEntity user;
+//
+//        if (request.getIdentifier().contains("@")) {
+//            user = userRepository.findByEmail(request.getIdentifier())
+//                    .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+//        } else {
+//            user = userRepository.findByPhoneNumber(request.getIdentifier())
+//                    .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+//        }
+//
+//        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new PasswordCannotMatchException(ExceptionCode.PASSWORD_CANNOT_MATCH);
+//        }
+//
+//        if (!user.isActive()) {
+//            throw new AccountNotActiveException(ExceptionCode.ACCOUNT_NOT_ACTIVE);
+//        }
+//
+//        String otp = generateOtp();
+//        otpService.saveOtp(OtpType.LOGIN, request.getIdentifier(), otp, OTP_TTL);
+//        log.info("LOGIN OTP -> {}", otp);
+//
+//
+//        if (request.getIdentifier().contains("@")) {
+//            emailService.sendOtpEmail(user.getEmail(), otp);
+//        }
+//    }
 
 
     @Override
@@ -316,15 +361,15 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-
-    @Override
-    public UserDto getCurrentUser() {
-
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        UserEntity user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-
-        return userMapper.toDto(user);
-    }
+// bunu   usere kecirtmeyi unutma burda olmmali deyil
+//    @Override
+//    public UserDto getCurrentUser() {
+//
+//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//
+//        UserEntity user = userRepository.findByUserName(username)
+//                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+//
+//        return userMapper.toDto(user);
+//    }
 }

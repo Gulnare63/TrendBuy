@@ -1,4 +1,3 @@
-// file: src/main/java/com/example/trendybuy/service/impl/JwtServiceImpl.java
 package com.example.trendybuy.service.impl;
 
 import com.example.trendybuy.dao.entity.UserEntity;

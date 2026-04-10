@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/seller")
 @RequiredArgsConstructor
@@ -15,16 +17,33 @@ public class SellerAccountController {
 
     private final SellerService sellerService;
 
-    // 1) Seller register
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public SellerProfileResponse registerSeller(@Valid @RequestBody SellerRegisterRequest request) {
-        return sellerService.registerSeller(request);
+    public String registerSeller(@RequestBody SellerRegisterRequest request) {
+        sellerService.registerSeller(request);
+        return "Seller registration submitted. Pending approval";
     }
 
-    // 2) Öz seller profilini görmək (JWT ilə authenticated olanda)
-    @GetMapping("/me")
-    public SellerProfileResponse getMySellerProfile() {
-        return sellerService.getMyProfile();
+    // Admin  edecek altdaki uc endpointi ,sorus bunu muellimden...
+    @GetMapping("/pending")
+    public List<SellerProfileResponse> getPendingSellers() {
+        return sellerService.getPendingSellers();
     }
+
+    @PutMapping("/{id}/approve")
+    public String approveSeller(@PathVariable Long id) {
+        sellerService.approveSeller(id);
+        return "Seller approved";
+    }
+
+    @PutMapping("/{id}/reject")
+    public String rejectSeller(@PathVariable Long id) {
+        sellerService.rejectSeller(id);
+        return "Seller rejected";
+    }
+
+//    // 2) Öz seller profilini görmək (JWT ilə authenticated olanda)
+//    @GetMapping("/me")
+//    public SellerProfileResponse getMySellerProfile() {
+//        return sellerService.getMyProfile();
+//    }
 }

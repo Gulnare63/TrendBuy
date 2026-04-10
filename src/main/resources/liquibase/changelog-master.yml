@@ -31,4 +31,4 @@ databaseChangeLog:
       file: liquibase/1.0/changelog-1.1.3.yml
 
   - include:
-      file: db/changelog/20251012-create-sellers.yml
+      file: liquibase/1.0/changelog-1.1.5.yml

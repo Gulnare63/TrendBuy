@@ -24,5 +24,5 @@ public interface AuthService {
 
     AuthResponse refreshToken(RefreshTokenRequest request);
 
-    UserDto getCurrentUser();
+//    UserDto getCurrentUser();
 }
