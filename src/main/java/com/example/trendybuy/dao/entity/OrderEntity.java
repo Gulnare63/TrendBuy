@@ -2,7 +2,8 @@ package com.example.trendybuy.dao.entity;
 import com.example.trendybuy.enums.OrderStatus;
 import com.example.trendybuy.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,7 +18,8 @@ import java.util.List;
                 @Index(name = "idx_orders_status", columnList = "status")
         }
 )
-@Data
+@Getter
+@Setter
 public class OrderEntity {
 
     @Id
@@ -64,6 +66,12 @@ public class OrderEntity {
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    @Column(name = "tracking_number", length = 100)
+    private String trackingNumber;
+
+    @Column(name = "shipping_carrier", length = 100)
+    private String shippingCarrier;
 
 
     @Column(name = "updated_at", nullable = false)

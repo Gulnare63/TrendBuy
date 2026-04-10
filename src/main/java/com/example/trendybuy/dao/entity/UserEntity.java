@@ -4,13 +4,15 @@ package com.example.trendybuy.dao.entity;
 import com.example.trendybuy.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "users", schema = "ecommerce")
 public class UserEntity {
 

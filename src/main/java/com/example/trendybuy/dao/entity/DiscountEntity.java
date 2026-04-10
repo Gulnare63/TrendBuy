@@ -1,9 +1,13 @@
 package com.example.trendybuy.dao.entity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "discounts", schema = "ecommerce")
 public class DiscountEntity {
 

@@ -2,7 +2,8 @@ package com.example.trendybuy.dao.entity;
 
 import com.example.trendybuy.enums.NotificationType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +17,8 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_notifications_user_read_time", columnList = "user_id, is_read, created_at")
         }
 )
-@Data
+@Getter
+@Setter
 public class NotificationEntity {
 
     @Id

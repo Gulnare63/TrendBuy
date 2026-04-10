@@ -2,11 +2,15 @@ package com.example.trendybuy.dao.entity;
 import com.example.trendybuy.enums.PaymentMethod;
 import com.example.trendybuy.enums.PaymentStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 @Table(
         name = "payments",
         schema = "ecommerce",
@@ -62,3 +66,4 @@ public class PaymentEntity {
             paymentDate = LocalDateTime.now();
         }
     }}
+

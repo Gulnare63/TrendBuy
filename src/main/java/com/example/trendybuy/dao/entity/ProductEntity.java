@@ -1,10 +1,14 @@
 package com.example.trendybuy.dao.entity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 @Table(
         name = "products",
         schema = "ecommerce",
@@ -24,6 +28,13 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "seller_id",
+            foreignKey = @ForeignKey(name = "fk_products_seller")
+    )
+    private SellerProfileEntity seller;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "category_id",
@@ -37,6 +48,9 @@ public class ProductEntity {
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;
+
+    @Column(name = "sku", unique = true, length = 100)
+    private String sku;
 
 
     @Column(name = "description", columnDefinition = "TEXT")

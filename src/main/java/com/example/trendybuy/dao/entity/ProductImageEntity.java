@@ -2,8 +2,12 @@ package com.example.trendybuy.dao.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(
         name = "product_images",
         schema = "ecommerce",
@@ -48,3 +52,4 @@ public class ProductImageEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 }
+

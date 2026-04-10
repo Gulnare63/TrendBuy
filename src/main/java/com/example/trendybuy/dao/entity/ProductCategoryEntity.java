@@ -1,11 +1,15 @@
 package com.example.trendybuy.dao.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Entity
+@Getter
+@Setter
 @Table(
         name = "product_categories",
         schema = "ecommerce",
@@ -50,3 +54,4 @@ public class ProductCategoryEntity {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<ProductCategoryEntity> children = new ArrayList<>();
 }
+
