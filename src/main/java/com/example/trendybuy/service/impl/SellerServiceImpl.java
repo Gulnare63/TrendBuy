@@ -34,7 +34,7 @@ public class SellerServiceImpl implements SellerService {
     private final SellerProfileRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final SellerProfileRepository sellerProfileRepository;
+
 
 
     @Override

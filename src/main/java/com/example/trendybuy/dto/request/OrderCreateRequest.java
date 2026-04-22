@@ -9,9 +9,6 @@ import java.util.List;
 @Data
 public class OrderCreateRequest {
 
-    @NotNull
-    private Long userId;
-
     private List<OrderItemCreateRequest> items;
 
     private String shippingAddressText;

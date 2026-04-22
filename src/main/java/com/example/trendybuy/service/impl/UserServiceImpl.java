@@ -2,18 +2,18 @@ package com.example.trendybuy.service.impl;
 
 import com.example.trendybuy.dao.entity.UserEntity;
 import com.example.trendybuy.dao.repository.UserRepository;
-import com.example.trendybuy.dto.request.ChangePasswordRequestt;
 import com.example.trendybuy.dto.request.UserCreateRequest;
-import com.example.trendybuy.dto.request.UserLoginRequest;
 import com.example.trendybuy.dto.request.UserUpdateRequest;
 import com.example.trendybuy.dto.response.*;
 import com.example.trendybuy.enums.UserRole;
 import com.example.trendybuy.exception.AlreadyExistsException;
 import com.example.trendybuy.exception.ExceptionCode;
 import com.example.trendybuy.exception.NotFoundException;
+import com.example.trendybuy.exception.PasswordCannotMatchException;
 import com.example.trendybuy.mapper.*;
 import com.example.trendybuy.service.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
+    private final PasswordEncoder passwordEncoder;
 
     private final OrderSummaryMapper orderMapper;
     private final NotificationMapper notificationMapper;
@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl(UserRepository userRepository,
                            UserMapper userMapper,
+                           PasswordEncoder passwordEncoder,
                            OrderSummaryMapper orderMapper,
                            NotificationMapper notificationMapper,
                            AddressMapper addressMapper,
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
                            HistoryMapper historyMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
         this.orderMapper = orderMapper;
         this.notificationMapper = notificationMapper;
         this.addressMapper = addressMapper;
@@ -105,30 +107,9 @@ public class UserServiceImpl implements UserService {
 
 
 
-    @Override
-    public UserResponse login(UserLoginRequest request) {
-        var entity = userRepository.findByUserName(request.getUserName())
-                .orElseThrow(() -> new NotFoundException(ExceptionCode.USER_NOT_FOUND));
+    // login() metodu UserService-dən silindi.
+    // Düzgün login axını AuthService.login() → AuthService.verifyLoginOtp() vasitəsilə gedir.
 
-        // TODO: passwordEncoder.matches(...)
-        if (!entity.getPassword().equals(request.getPassword())) {
-            throw new NotFoundException(ExceptionCode.USER_OR_PASSWORD_WRONG);
-        }
-
-        return userMapper.toResponse(entity);
-    }
-
-    @Override
-    public void changePassword(Long userId, ChangePasswordRequestt request) {
-        var entity = findUser(userId);
-
-        // TODO: encoder istifadə et
-        if (!entity.getPassword().equals(request.getOldPassword())) {
-            throw new IllegalArgumentException("Old password is wrong");
-        }
-
-        entity.setPassword(request.getNewPassword());
-    }
 
     @Override
     public void activateUser(Long id) {

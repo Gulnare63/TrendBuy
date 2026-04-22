@@ -1,8 +1,6 @@
 package com.example.trendybuy.service;
 
-import com.example.trendybuy.dto.request.ChangePasswordRequestt;
 import com.example.trendybuy.dto.request.UserCreateRequest;
-import com.example.trendybuy.dto.request.UserLoginRequest;
 import com.example.trendybuy.dto.request.UserUpdateRequest;
 import com.example.trendybuy.dto.response.*;
 
@@ -21,10 +19,6 @@ public interface UserService {
 
     void deleteUser(Long id);
 
-
-    UserResponse login(UserLoginRequest request);
-
-    void changePassword(Long userId, ChangePasswordRequestt request);
 
     void activateUser(Long id);
 

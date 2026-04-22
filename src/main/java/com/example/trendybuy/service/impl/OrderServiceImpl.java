@@ -16,6 +16,7 @@ import com.example.trendybuy.exception.NotFoundException;
 import com.example.trendybuy.mapper.*;
 import com.example.trendybuy.service.OrderService;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -66,7 +67,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse createOrder(OrderCreateRequest request) {
 
-        UserEntity user = userRepository.findById(request.getUserId())
+        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
+        Long userId = Long.valueOf(userIdStr);
+
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.USER_NOT_FOUND));
 
 
@@ -189,7 +193,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public List<PaymentResponse> getOrderPayments(Long orderId) {
-        List<PaymentEntity> payments = paymentRepository.findByOrder_id(orderId);
+        List<PaymentEntity> payments = paymentRepository.findByOrder_Id(orderId);
         return paymentMapper.toResponseList(payments);
     }
 

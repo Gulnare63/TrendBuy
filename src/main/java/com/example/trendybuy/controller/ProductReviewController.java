@@ -1,78 +1,28 @@
 package com.example.trendybuy.controller;
 
-import com.example.trendybuy.dao.entity.ProductReviewEntity;
+import com.example.trendybuy.dto.request.ProductReviewRequest;
+import com.example.trendybuy.dto.response.UserReviewResponse;
+import com.example.trendybuy.service.ProductReviewService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/product-reviews")
+@RequestMapping("/api/reviews")
+@RequiredArgsConstructor
 public class ProductReviewController {
 
+    private final ProductReviewService reviewService;
+
+    @PostMapping
+    public UserReviewResponse createReview(@Valid @RequestBody ProductReviewRequest request) {
+        return reviewService.createReview(request);
+    }
 
     @GetMapping("/product/{productId}")
-    public List<ProductReviewEntity> getReviewsByProductId(@PathVariable Long productId) {
-        // TODO: implement
-        return null;
-    }
-
-
-    @GetMapping("/{id}")
-    public ProductReviewEntity getReviewById(@PathVariable Long id) {
-        // TODO: implement
-        return null;
-    }
-
-    @PostMapping("/product/{productId}")
-    public ProductReviewEntity createReview(@PathVariable Long productId, @RequestBody ProductReviewEntity review) {
-        // TODO: implement
-        return null;
-    }
-
-
-    @PutMapping("/{id}")
-    public ProductReviewEntity updateReview(@PathVariable Long id, @RequestBody ProductReviewEntity review) {
-        // TODO: implement
-        return null;
-    }
-
-
-    @DeleteMapping("/{id}")
-    public void deleteReview(@PathVariable Long id) {
-        // TODO: implement
-    }
-
-    @GetMapping("/product/{productId}/average-rating")
-    public Double getAverageRatingByProductId(@PathVariable Long productId) {
-        // TODO: implement
-        return null;
-    }
-
-
-    @GetMapping("/product/{productId}/top-reviews")
-    public List<ProductReviewEntity> getTopReviewsByProductId(@PathVariable Long productId) {
-        // TODO: implement
-        return null;
+    public List<UserReviewResponse> getProductReviews(@PathVariable Long productId) {
+        return reviewService.getProductReviews(productId);
     }
 }
-//    getReviewsByProductId
-//
-//getReviewById
-//
-//createReview
-
-//getReviewsByProductId
-//
-//getReviewById
-//
-//createReview
-//
-//updateReview
-//
-//deleteReview
-//
-//getAverageRatingByProductId
-//
-//getTopReviewsByProductId
-
-

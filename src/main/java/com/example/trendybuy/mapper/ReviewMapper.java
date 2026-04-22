@@ -11,8 +11,8 @@ import java.util.List;
 public interface ReviewMapper {
 
 
-//    @Mapping(target = "productId", source = "product.id")
-//    @Mapping(target = "productName", source = "product.name")
+    @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "productName", source = "product.name")
     UserReviewResponse toResponse(ProductReviewEntity entity);
 
     List<UserReviewResponse> toResponseList(List<ProductReviewEntity> entities);

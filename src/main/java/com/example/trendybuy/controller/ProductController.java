@@ -1,89 +1,97 @@
 package com.example.trendybuy.controller;
 
-import com.example.trendybuy.dao.entity.ProductEntity;
+import com.example.trendybuy.dto.request.ProductCreateRequest;
+import com.example.trendybuy.dto.request.ProductUpdateRequest;
+import com.example.trendybuy.dto.response.ProductResponse;
+import com.example.trendybuy.service.ProductService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
 
+    private final ProductService productService;
+
+    // Public axtarış / list metodları (SecurityConfig-də icazə vermişik)
+    
     @GetMapping
-    public
-    List<ProductEntity> getAllProducts() {
-        // TODO: implement
-        return null;
+    public List<ProductResponse> getAllProducts() {
+        return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")
-    public ProductEntity getProductById(@PathVariable Long id) {
-        // TODO: implement
-        return null;
+    public ProductResponse getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
-
-
-    @PostMapping
-    public ProductEntity createProduct(@RequestBody ProductEntity product) {
-        // TODO: implement
-        return null;
-    }
-
-
-    @PutMapping("/{id}")
-    public ProductEntity updateProduct(@PathVariable Long id, @RequestBody ProductEntity product) {
-        // TODO: implement
-        return null;
-    }
-
-
-    @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
-        // TODO: implement
-    }
-
 
     @GetMapping("/search")
-    public List<ProductEntity> searchProducts(
+    public List<ProductResponse> searchProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) Boolean active,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice
     ) {
-        // TODO: implement
-        return null;
+        return productService.searchProducts(name, categoryId, minPrice, maxPrice);
     }
-
 
     @GetMapping("/top-rated")
-    public List<ProductEntity> getTopRatedProducts() {
-        // TODO: implement
-        return null;
+    public List<ProductResponse> getTopRatedProducts() {
+        return productService.getTopRatedProducts();
     }
-
 
     @GetMapping("/on-discount")
-    public List<ProductEntity> getProductsOnDiscount() {
-        // TODO: implement
-        return null;
+    public List<ProductResponse> getProductsOnDiscount() {
+        return productService.getProductsOnDiscount();
     }
-
 
     @GetMapping("/by-category/{categoryId}")
-    public List<ProductEntity> getProductsByCategory(@PathVariable Long categoryId) {
-        // TODO: implement
-        return null;
+    public List<ProductResponse> getProductsByCategory(@PathVariable Long categoryId) {
+        return productService.getProductsByCategory(categoryId);
     }
-//    getProductById
-//
-//createProduct
-//
-//updateProduct
-//
-//deleteProduct
-//
-//getProductsByCategoryId
-//
-//searchProducts (opsional: filter price, stock, active)
+
+
+    // Seller-only metodlar (yalnız ROLES_SELLER olanlar istifadə edə bilər)
+
+    @PreAuthorize("hasRole('SELLER')")
+    @PostMapping
+    public ProductResponse createProduct(@Valid @RequestBody ProductCreateRequest request) {
+        return productService.createProduct(request);
+    }
+
+    @PreAuthorize("hasRole('SELLER')")
+    @PutMapping("/{id}")
+    public ProductResponse updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateRequest request) {
+        return productService.updateProduct(id, request);
+    }
+
+    @PreAuthorize("hasRole('SELLER')")
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+    }
+    
+    @PreAuthorize("hasRole('SELLER')")
+    @GetMapping("/my-products")
+    public List<ProductResponse> getMyProducts() {
+        return productService.getMyProducts();
+    }
+    
+    @PreAuthorize("hasRole('SELLER')")
+    @PostMapping("/{id}/activate")
+    public void activateProduct(@PathVariable Long id) {
+        productService.activateProduct(id);
+    }
+    
+    @PreAuthorize("hasRole('SELLER')")
+    @PostMapping("/{id}/deactivate")
+    public void deactivateProduct(@PathVariable Long id) {
+        productService.deactivateProduct(id);
+    }
 }

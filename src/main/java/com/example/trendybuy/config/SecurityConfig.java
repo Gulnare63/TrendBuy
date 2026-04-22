@@ -55,7 +55,6 @@ public class SecurityConfig {
                         // Public auth endpointlər
                         .requestMatchers(
                                 "/api/auth/register/email",
-                                "/api/seller/register", // seller qeydiyyatı hamıya açıq
                                 "/api/auth/register/phone",
                                 "/api/auth/verify/email-otp",
                                 "/api/auth/verify/phone-otp",
@@ -63,7 +62,8 @@ public class SecurityConfig {
                                 "/api/auth/login/verify-otp",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
-                                "/api/auth/refresh"
+                                "/api/auth/refresh",
+                                "/api/seller/register"
                         ).permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -71,7 +71,10 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         // Swagger, h2 və s. varsa burda əlavə edərsən
-                        // .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(
+                                "/api/categories/**",
+                                "/api/products/**"
+                        ).permitAll()
                         // Protected auth endpointlər
                         .requestMatchers(
                                 "/api/auth/me",
@@ -79,7 +82,7 @@ public class SecurityConfig {
                                 "/api/auth/logout"
                         ).authenticated()
                         // 🧾 Seller-only endpointlər
-                        .requestMatchers("/api/seller/**").hasRole("SELLER")
+                        .requestMatchers("/api/seller/**", "/api/product-images/**").hasRole("SELLER")
 
                         // 🧑‍💻 Admin-only (sonra əlavə edəcəksən)
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

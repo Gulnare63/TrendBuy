@@ -119,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
         UserEntity user = new UserEntity();
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhone());
-        user.setUserName(request.getPassword());
+        user.setUserName(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(UserRole.CUSTOMER);
         user.setActive(false);

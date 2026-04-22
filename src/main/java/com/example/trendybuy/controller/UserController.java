@@ -1,8 +1,6 @@
 package com.example.trendybuy.controller;
 
-import com.example.trendybuy.dto.request.ChangePasswordRequestt;
 import com.example.trendybuy.dto.request.UserCreateRequest;
-import com.example.trendybuy.dto.request.UserLoginRequest;
 import com.example.trendybuy.dto.request.UserUpdateRequest;
 import com.example.trendybuy.dto.response.*;
 import com.example.trendybuy.service.UserService;
@@ -48,17 +46,6 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-
-    @PostMapping("/login")
-    public UserResponse login(@Valid @RequestBody UserLoginRequest request) {
-        return userService.login(request);
-    }
-
-    @PostMapping("/{id}/change-password")
-    public void changePassword(@PathVariable Long id,
-                               @Valid @RequestBody ChangePasswordRequestt request) {
-        userService.changePassword(id, request);
-    }
 
 
 
