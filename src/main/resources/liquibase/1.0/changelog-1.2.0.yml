@@ -1,0 +1,220 @@
+databaseChangeLog:
+
+  # ============================================================
+  # 1. products cədvəlinə çatışmayan sütunlar
+  #    - seller_id   (SellerProfileEntity ilə əlaqə)
+  #    - sku         (unikal məhsul kodu)
+  #    - version     (Optimistic Locking üçün @Version)
+  # ============================================================
+  - changeSet:
+      id: 20260422-add-seller-sku-version-to-products
+      author: antigravity
+      changes:
+        - addColumn:
+            schemaName: ecommerce
+            tableName: products
+            columns:
+              - column:
+                  name: seller_id
+                  type: BIGINT
+              - column:
+                  name: sku
+                  type: VARCHAR(100)
+              - column:
+                  name: version
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            schemaName: ecommerce
+            tableName: products
+            columnNames: sku
+            constraintName: uq_products_sku
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ecommerce
+            baseTableName: products
+            baseColumnNames: seller_id
+            referencedTableSchemaName: ecommerce
+            referencedTableName: sellers
+            referencedColumnNames: seller_id
+            constraintName: fk_products_seller
+            onDelete: SET NULL
+
+        - createIndex:
+            schemaName: ecommerce
+            tableName: products
+            indexName: idx_products_seller
+            columns:
+              - column:
+                  name: seller_id
+
+  # ============================================================
+  # 2. orders cədvəlinə çatışmayan sütunlar
+  #    - tracking_number  (kargo izleme kodu)
+  #    - shipping_carrier (kargo şirkəti)
+  # ============================================================
+  - changeSet:
+      id: 20260422-add-tracking-carrier-to-orders
+      author: antigravity
+      changes:
+        - addColumn:
+            schemaName: ecommerce
+            tableName: orders
+            columns:
+              - column:
+                  name: tracking_number
+                  type: VARCHAR(100)
+              - column:
+                  name: shipping_carrier
+                  type: VARCHAR(100)
+
+  # ============================================================
+  # 3. discounts cədvəlini tam yenilə
+  #    Köhnə faylda yalnız discount_percent vardı.
+  #    Entity-də isə:
+  #      - discount_type (PERCENTAGE / FIXED_AMOUNT)
+  #      - discount_value
+  #      - min_order_amount
+  #      - max_discount_amount
+  #    sütunları var. discount_percent sütununu silməyib
+  #    yeni sütunlar əlavə edirik (məlumat itkisi olmasın).
+  # ============================================================
+  - changeSet:
+      id: 20260422-update-discounts-table
+      author: antigravity
+      changes:
+        - addColumn:
+            schemaName: ecommerce
+            tableName: discounts
+            columns:
+              - column:
+                  name: discount_type
+                  type: VARCHAR(20)
+                  defaultValue: PERCENTAGE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: discount_value
+                  type: DECIMAL(5,2)
+              - column:
+                  name: min_order_amount
+                  type: DECIMAL(10,2)
+              - column:
+                  name: max_discount_amount
+                  type: DECIMAL(10,2)
+
+        # discount_percent köhnə sütununu silirik (artıq discount_value var)
+        - dropColumn:
+            schemaName: ecommerce
+            tableName: discounts
+            columnName: discount_percent
+
+  # ============================================================
+  # 4. products cədvəlindəki PK adını düzəlt
+  #    Liquibase product_id kimi yaratmışdı.
+  #    Hibernate entity-də @Id private Long id → sütun adı "id".
+  #    Bunu rename edirik ki, Hibernate işləsin.
+  # ============================================================
+  - changeSet:
+      id: 20260422-rename-products-pk
+      author: antigravity
+      changes:
+        - renameColumn:
+            schemaName: ecommerce
+            tableName: products
+            oldColumnName: product_id
+            newColumnName: id
+            columnDataType: BIGINT
+
+  # ============================================================
+  # 5. order_items cədvəlindəki PK adını düzəlt
+  #    Liquibase order_item_id, entity-də id
+  # ============================================================
+  - changeSet:
+      id: 20260422-rename-order-items-pk
+      author: antigravity
+      changes:
+        - renameColumn:
+            schemaName: ecommerce
+            tableName: order_items
+            oldColumnName: order_item_id
+            newColumnName: id
+            columnDataType: BIGINT
+
+  # ============================================================
+  # 6. orders cədvəlindəki PK adını düzəlt
+  #    Liquibase order_id, entity-də id
+  # ============================================================
+  - changeSet:
+      id: 20260422-rename-orders-pk
+      author: antigravity
+      changes:
+        - renameColumn:
+            schemaName: ecommerce
+            tableName: orders
+            oldColumnName: order_id
+            newColumnName: id
+            columnDataType: BIGINT
+
+  # ============================================================
+  # 7. discounts cədvəlindəki PK adını düzəlt
+  #    Liquibase discount_id, entity-də id
+  # ============================================================
+  - changeSet:
+      id: 20260422-rename-discounts-pk
+      author: antigravity
+      changes:
+        - renameColumn:
+            schemaName: ecommerce
+            tableName: discounts
+            oldColumnName: discount_id
+            newColumnName: id
+            columnDataType: BIGINT
+
+  # ============================================================
+  # 8. history cədvəlindəki PK adını düzəlt
+  #    Liquibase history_id, entity-də id
+  # ============================================================
+  - changeSet:
+      id: 20260422-rename-history-pk
+      author: antigravity
+      changes:
+        - renameColumn:
+            schemaName: ecommerce
+            tableName: history
+            oldColumnName: history_id
+            newColumnName: id
+            columnDataType: BIGINT
+
+  # ============================================================
+  # 9. notifications cədvəlindəki PK adını düzəlt
+  #    Liquibase notification_id, entity-də id
+  # ============================================================
+  - changeSet:
+      id: 20260422-rename-notifications-pk
+      author: antigravity
+      changes:
+        - renameColumn:
+            schemaName: ecommerce
+            tableName: notifications
+            oldColumnName: notification_id
+            newColumnName: id
+            columnDataType: BIGINT
+
+  # ============================================================
+  # 10. wishlists cədvəlindəki PK adını düzəlt
+  #     Liquibase wishlist_id, entity-də id
+  # ============================================================
+  - changeSet:
+      id: 20260422-rename-wishlists-pk
+      author: antigravity
+      changes:
+        - renameColumn:
+            schemaName: ecommerce
+            tableName: wishlists
+            oldColumnName: wishlist_id
+            newColumnName: id
+            columnDataType: BIGINT
