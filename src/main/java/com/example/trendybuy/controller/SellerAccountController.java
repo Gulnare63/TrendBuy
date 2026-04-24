@@ -23,7 +23,6 @@ public class SellerAccountController {
         return "Seller registration submitted. Pending approval";
     }
 
-    // Admin  edecek altdaki uc endpointi ,sorus bunu muellimden...
     @GetMapping("/pending")
     public List<SellerProfileResponse> getPendingSellers() {
         return sellerService.getPendingSellers();
@@ -41,9 +40,5 @@ public class SellerAccountController {
         return "Seller rejected";
     }
 
-//    // 2) Öz seller profilini görmək (JWT ilə authenticated olanda)
-//    @GetMapping("/me")
-//    public SellerProfileResponse getMySellerProfile() {
-//        return sellerService.getMyProfile();
-//    }
+
 }

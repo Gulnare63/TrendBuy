@@ -19,41 +19,24 @@ public class ProductCategoryController {
 
     private final ProductCategoryService categoryService;
 
-    // ======================== PUBLIC APIs ========================
 
-    /**
-     * Aktiv ana kateqoriyaları gətirir (müştəri üçün - Navbar, Filter)
-     * GET /api/categories/active
-     */
     @GetMapping("/active")
     public ResponseEntity<List<CategoryResponse>> getActiveCategories() {
         return ResponseEntity.ok(categoryService.getActiveRootCategories());
     }
 
-    /**
-     * Bir kateqoriyanın detallarını gətirir
-     * GET /api/categories/{id}
-     */
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
-    /**
-     * Bir parent kateqoriyanın alt-kateqoriyalarını gətirir
-     * GET /api/categories/{parentId}/children
-     */
+
     @GetMapping("/{parentId}/children")
     public ResponseEntity<List<CategoryResponse>> getChildren(@PathVariable Long parentId) {
         return ResponseEntity.ok(categoryService.getChildrenByParentId(parentId));
     }
 
-    // ======================== ADMIN APIs ========================
 
-    /**
-     * Bütün kateqoriyaları gətirir (Admin panel)
-     * GET /api/categories
-     */
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
@@ -68,11 +51,7 @@ public class ProductCategoryController {
         return ResponseEntity.ok(categoryService.getAllRootCategories());
     }
 
-    /**
-     * Yeni kateqoriya yarat
-     * POST /api/categories
-     * Body: { "categoryName": "Elektronika", "parentId": null }
-     */
+
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(
             @Valid @RequestBody CategoryCreateRequest request) {
@@ -80,10 +59,7 @@ public class ProductCategoryController {
                 .body(categoryService.createCategory(request));
     }
 
-    /**
-     * Kateqoriyanı yenilə
-     * PUT /api/categories/{id}
-     */
+
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable Long id,
@@ -91,30 +67,21 @@ public class ProductCategoryController {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
-    /**
-     * Kateqoriyanı deaktiv et (Soft delete - məhsullar qalır)
-     * PATCH /api/categories/{id}/deactivate
-     */
+
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateCategory(@PathVariable Long id) {
         categoryService.deactivateCategory(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Deaktiv kateqoriyanı aktivləşdir
-     * PATCH /api/categories/{id}/activate
-     */
+
     @PatchMapping("/{id}/activate")
     public ResponseEntity<Void> activateCategory(@PathVariable Long id) {
         categoryService.activateCategory(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Kateqoriyanı tam sil (yalnız alt-kateqoriyası və məhsulu yoxdursa)
-     * DELETE /api/categories/{id}
-     */
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);

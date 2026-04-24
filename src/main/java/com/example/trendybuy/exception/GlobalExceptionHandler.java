@@ -1,4 +1,3 @@
-// file: src/main/java/com/example/trendybuy/exception/GlobalExceptionHandler.java
 package com.example.trendybuy.exception;
 
 import com.example.trendybuy.dto.response.ErrorResponse;
@@ -28,7 +27,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 🔹 Bütün BaseException-lar üçün (UserNotFound, InvalidOtp və s.)
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException ex) {
         return buildResponse(
@@ -38,7 +36,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 🔹 Validation xətaları (@Valid, @NotBlank və s.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
 
@@ -55,15 +52,22 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 🔹 Qalan bütün gözlənilməyən xətalar
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleOther(Exception ex) {
 
-        // burda log yaza bilərsən
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 ExceptionCode.INTERNAL_SERVER_ERROR.name(),
                 "Internal server error"
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                ExceptionCode.VALIDATION_ERROR.name(),
+                ex.getMessage()
         );
     }
 }

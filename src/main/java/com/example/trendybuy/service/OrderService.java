@@ -12,6 +12,8 @@ public interface OrderService {
 
     OrderResponse createOrder(OrderCreateRequest request);
 
+    OrderResponse createOrderFromCart();
+
     OrderResponse getOrderById(Long orderId);
 
     List<OrderResponse> getAllOrders();

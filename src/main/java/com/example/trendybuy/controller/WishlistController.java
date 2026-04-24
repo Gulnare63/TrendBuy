@@ -28,4 +28,9 @@ public class WishlistController {
     public void clearMyWishlist() {
         wishlistService.clearWishlist();
     }
+
+    @PostMapping("/{productId}/move-to-cart")
+    public void moveWishlistItemToCart(@PathVariable Long productId) {
+        wishlistService.moveWishlistItemToCart(productId);
+    }
 }

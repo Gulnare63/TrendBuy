@@ -12,10 +12,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface OrderItemMapper {
 
-//    @Mapping(target = "orderItemId", source = "id")
-//    @Mapping(target = "productId", source = "product.id")
-//    @Mapping(target = "productName", source = "product.name")
-//    @Mapping(target = "lineTotal", expression = "java( calcLineTotal(entity) )")
+    @Mapping(target = "orderItemId", source = "id")
+    @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "productName", source = "product.name")
+    @Mapping(target = "lineTotal", expression = "java( calcLineTotal(entity) )")
     OrderItemResponse toResponse(OrderItemEntity entity);
 
     List<OrderItemResponse> toResponseList(List<OrderItemEntity> entities);

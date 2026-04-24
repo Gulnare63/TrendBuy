@@ -75,7 +75,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ShoppingCartEntity> shoppingCarts;
 
-    // ===================== Auto-set timestamps =====================
 
     @PrePersist
     void prePersist() {

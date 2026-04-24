@@ -25,6 +25,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse createCategory(CategoryCreateRequest request) {
         // Eyni adlı kateqoriya varmı?
         if (categoryRepository.existsByCategoryName(request.getCategoryName())) {
@@ -51,6 +52,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
+    @org.springframework.cache.annotation.Cacheable(value = "categories", key = "'allRoot'")
     public List<CategoryResponse> getAllRootCategories() {
         return categoryMapper.toResponseList(
                 categoryRepository.findAllByParentIsNull()
@@ -69,6 +71,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
+    @org.springframework.cache.annotation.Cacheable(value = "categories", key = "'activeRoot'")
     public List<CategoryResponse> getActiveRootCategories() {
         return categoryMapper.toResponseList(
                 categoryRepository.findAllByActiveTrueAndParentIsNull()
@@ -82,6 +85,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse updateCategory(Long id, CategoryUpdateRequest request) {
         ProductCategoryEntity entity = findCategory(id);
 
@@ -107,6 +111,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public void deactivateCategory(Long id) {
         ProductCategoryEntity entity = findCategory(id);
         entity.setActive(false);
@@ -114,6 +119,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public void activateCategory(Long id) {
         ProductCategoryEntity entity = findCategory(id);
         entity.setActive(true);
@@ -121,6 +127,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public void deleteCategory(Long id) {
         ProductCategoryEntity entity = findCategory(id);
 

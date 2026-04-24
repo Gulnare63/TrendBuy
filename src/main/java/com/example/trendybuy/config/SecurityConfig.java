@@ -73,7 +73,8 @@ public class SecurityConfig {
                         // Swagger, h2 və s. varsa burda əlavə edərsən
                         .requestMatchers(
                                 "/api/categories/**",
-                                "/api/products/**"
+                                "/api/products/**",
+                                "/api/reviews/product/**"
                         ).permitAll()
                         // Protected auth endpointlər
                         .requestMatchers(
@@ -81,10 +82,10 @@ public class SecurityConfig {
                                 "/api/auth/change-password",
                                 "/api/auth/logout"
                         ).authenticated()
-                        // 🧾 Seller-only endpointlər
+                        //  Seller-only endpointlər
                         .requestMatchers("/api/seller/**", "/api/product-images/**").hasRole("SELLER")
 
-                        // 🧑‍💻 Admin-only (sonra əlavə edəcəksən)
+                        // 🧑 Admin-only (sonra əlavə edəcəksən)
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // qalan hər şey - hazırda auth tələb etsin
                         .anyRequest().authenticated()

@@ -39,6 +39,10 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemMapper orderItemMapper;
     private final PaymentMapper paymentMapper;
     private final HistoryMapper historyMapper;
+    private final com.example.trendybuy.service.DiscountService discountService;
+    private final com.example.trendybuy.dao.repository.ShoppingCartRepository cartRepository;
+    private final com.example.trendybuy.service.NotificationService notificationService;
+    private final com.example.trendybuy.dao.repository.HistoryRepository historyRepository;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             UserRepository userRepository,
@@ -49,7 +53,11 @@ public class OrderServiceImpl implements OrderService {
                             OrderSummaryMapper orderSummaryMapper,
                             OrderItemMapper orderItemMapper,
                             PaymentMapper paymentMapper,
-                            HistoryMapper historyMapper) {
+                            HistoryMapper historyMapper,
+                            com.example.trendybuy.service.DiscountService discountService,
+                            com.example.trendybuy.dao.repository.ShoppingCartRepository cartRepository,
+                            com.example.trendybuy.service.NotificationService notificationService,
+                            com.example.trendybuy.dao.repository.HistoryRepository historyRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
@@ -60,6 +68,10 @@ public class OrderServiceImpl implements OrderService {
         this.orderItemMapper = orderItemMapper;
         this.paymentMapper = paymentMapper;
         this.historyMapper = historyMapper;
+        this.discountService = discountService;
+        this.cartRepository = cartRepository;
+        this.notificationService = notificationService;
+        this.historyRepository = historyRepository;
     }
 
 
@@ -93,31 +105,124 @@ public class OrderServiceImpl implements OrderService {
 
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             List<OrderItemEntity> itemEntities = new ArrayList<>();
+            BigDecimal totalOriginalAmount = BigDecimal.ZERO;
+            BigDecimal totalDiscountedAmount = BigDecimal.ZERO;
+
             for (OrderItemCreateRequest itemReq : request.getItems()) {
 
                 ProductEntity product = productRepository.findById(itemReq.getProductId())
                         .orElseThrow(() -> new NotFoundException(ExceptionCode.PRODUCT_NOT_FOUND));
 
+                // 🌟 Təhlükəsizlik: Qiyməti request-dən deyil, bazadan və DiscountService-dən alırıq!
+                BigDecimal discountedPrice = discountService.calculateDiscountedPrice(product.getId());
+
+                if (product.getStockQuantity() < itemReq.getQuantity()) {
+                    throw new IllegalArgumentException("Not enough stock for product: " + product.getName());
+                }
+                product.setStockQuantity(product.getStockQuantity() - itemReq.getQuantity());
+
                 OrderItemEntity item = new OrderItemEntity();
                 item.setOrder(savedOrder);
                 item.setProduct(product);
                 item.setQuantity(itemReq.getQuantity());
-                item.setPrice(itemReq.getPrice());
+                item.setPrice(discountedPrice);
 
                 itemEntities.add(item);
+
+                totalOriginalAmount = totalOriginalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(itemReq.getQuantity())));
+                totalDiscountedAmount = totalDiscountedAmount.add(discountedPrice.multiply(BigDecimal.valueOf(itemReq.getQuantity())));
             }
             orderItemRepository.saveAll(itemEntities);
             savedOrder.setOrderitems(itemEntities);
 
-
-            if (request.getTotalAmount() == null) {
-                BigDecimal total = itemEntities.stream()
-                        .map(i -> i.getPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                savedOrder.setTotalAmount(total);
-            }
+            savedOrder.setTotalAmount(totalDiscountedAmount);
+            savedOrder.setDiscountAmount(totalOriginalAmount.subtract(totalDiscountedAmount));
+            orderRepository.save(savedOrder);
         }
 
+        // Tarixçəyə yazırıq
+        com.example.trendybuy.dao.entity.HistoryEntity history = new com.example.trendybuy.dao.entity.HistoryEntity();
+        history.setUser(user);
+        history.setOrder(savedOrder);
+        history.setHistoryType(com.example.trendybuy.enums.HistoryType.ORDER_CREATED);
+        history.setChangeDescription("Order placed with total: " + savedOrder.getTotalAmount() + " AZN");
+        historyRepository.save(history);
+
+        // Bildiriş
+        notificationService.sendNotification(user.getUserId(),
+                "Your order #" + savedOrder.getId() + " has been successfully created. Please complete the payment.",
+                com.example.trendybuy.enums.NotificationType.ORDER_PLACED);
+
+        return orderMapper.toResponse(savedOrder);
+    }
+
+    @Override
+    public OrderResponse createOrderFromCart() {
+        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
+        Long userId = Long.valueOf(userIdStr);
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.USER_NOT_FOUND));
+
+        List<ShoppingCartEntity> cartItems = cartRepository.findByUser_UserId(userId);
+        if (cartItems.isEmpty()) {
+            throw new IllegalArgumentException("Your shopping cart is empty.");
+        }
+
+        OrderEntity order = new OrderEntity();
+        order.setUser(user);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.CONFIRMED);
+        order.setPaymentStatus(PaymentStatus.PENDING);
+        order.setUpdatedAt(LocalDateTime.now());
+        OrderEntity savedOrder = orderRepository.save(order);
+
+        List<OrderItemEntity> itemEntities = new ArrayList<>();
+        BigDecimal totalOriginalAmount = BigDecimal.ZERO;
+        BigDecimal totalDiscountedAmount = BigDecimal.ZERO;
+
+        for (ShoppingCartEntity cartItem : cartItems) {
+            ProductEntity product = cartItem.getProduct();
+            
+            BigDecimal discountedPrice = discountService.calculateDiscountedPrice(product.getId());
+
+            if (product.getStockQuantity() < cartItem.getQuantity()) {
+                throw new IllegalArgumentException("Not enough stock for product: " + product.getName());
+            }
+            product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+
+            OrderItemEntity item = new OrderItemEntity();
+            item.setOrder(savedOrder);
+            item.setProduct(product);
+            item.setQuantity(cartItem.getQuantity());
+            item.setPrice(discountedPrice);
+
+            itemEntities.add(item);
+
+            totalOriginalAmount = totalOriginalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            totalDiscountedAmount = totalDiscountedAmount.add(discountedPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        }
+
+        orderItemRepository.saveAll(itemEntities);
+        savedOrder.setOrderitems(itemEntities);
+        savedOrder.setTotalAmount(totalDiscountedAmount);
+        savedOrder.setDiscountAmount(totalOriginalAmount.subtract(totalDiscountedAmount));
+        orderRepository.save(savedOrder);
+
+        cartRepository.deleteAll(cartItems); // 🛒 Səbəti boşaltmaq
+
+        // Tarixçəyə yazırıq
+        com.example.trendybuy.dao.entity.HistoryEntity history = new com.example.trendybuy.dao.entity.HistoryEntity();
+        history.setUser(user);
+        history.setOrder(savedOrder);
+        history.setHistoryType(com.example.trendybuy.enums.HistoryType.ORDER_CREATED);
+        history.setChangeDescription("Order placed from cart with total: " + savedOrder.getTotalAmount() + " AZN");
+        historyRepository.save(history);
+
+        // Bildiriş
+        notificationService.sendNotification(user.getUserId(),
+                "Your order #" + savedOrder.getId() + " from shopping cart has been successfully created. Please complete the payment.",
+                com.example.trendybuy.enums.NotificationType.ORDER_PLACED);
 
         return orderMapper.toResponse(savedOrder);
     }

@@ -53,11 +53,7 @@ public class HistoryEntity {
     @Column(nullable = false, length = 255)
     private String changeDescription;
 
-    /**
 
-     * Liquibase: defaultValueComputed = NOW()
-     * Hibernate bəzən NULL dəyər göndərə bilər, DB defaultu işə düşməsin deyə
-     */
     @Column(nullable = false)
     private LocalDateTime changeTimestamp;
 

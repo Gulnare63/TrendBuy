@@ -84,7 +84,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/addresses")
-    public List<AddressResponse> getUserAddresses(@PathVariable Long id) {
+    public List<ShoppingAddressResponse> getUserAddresses(@PathVariable Long id) {
         return userService.getUserAddresses(id);
     }
 

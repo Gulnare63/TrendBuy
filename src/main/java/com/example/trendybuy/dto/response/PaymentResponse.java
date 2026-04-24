@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class PaymentResponse {
 
-    private Long Id;
+    private Long id;
     private LocalDateTime paymentDate;
     private String paymentMethod;
     private BigDecimal amount;

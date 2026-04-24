@@ -29,7 +29,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final PaymentMapper paymentMapper;
-    private final ProductRepository productRepository; // Stok yoxlanışı üçün
+    private final com.example.trendybuy.service.NotificationService notificationService;
+    private final com.example.trendybuy.dao.repository.HistoryRepository historyRepository;
 
     @Override
     public PaymentResponse processPayment(PaymentRequest request) {
@@ -51,18 +52,24 @@ public class PaymentServiceImpl implements PaymentService {
 
         PaymentEntity savedPayment = paymentRepository.save(payment);
 
-        // Ödəniş SUCCESS olduqdan sonra həm Sifarişin statusunu dəyişirik, həm də MƏHSUL STOKUNU AZALDIRIQ
+        // Ödəniş SUCCESS olduqdan sonra həm Sifarişin statusunu dəyişirik
         order.setStatus(OrderStatus.PROCESSING); // Məsələn Processing, çünki artıq ödənilib
         
-        for (OrderItemEntity item : order.getOrderitems()) {
-            if (item.getProduct().getStockQuantity() < item.getQuantity()) {
-                throw new IllegalArgumentException("Not enough stock remaining for product: " + item.getProduct().getName());
-            }
-            item.getProduct().setStockQuantity(item.getProduct().getStockQuantity() - item.getQuantity());
-            productRepository.save(item.getProduct());
-        }
-        
         orderRepository.save(order);
+
+        // Tarixçəyə yazırıq
+        com.example.trendybuy.dao.entity.HistoryEntity history = new com.example.trendybuy.dao.entity.HistoryEntity();
+        history.setUser(order.getUser());
+        history.setOrder(order);
+        history.setPayment(savedPayment);
+        history.setHistoryType(com.example.trendybuy.enums.HistoryType.PAYMENT_RECEIVED);
+        history.setChangeDescription("Payment successful: " + savedPayment.getAmount() + " AZN via " + savedPayment.getPaymentMethod());
+        historyRepository.save(history);
+
+        // İstifadəçiyə bildiriş göndəririk
+        notificationService.sendNotification(order.getUser().getUserId(), 
+                "Your payment of " + savedPayment.getAmount() + " AZN was successful. Order is now processing.",
+                com.example.trendybuy.enums.NotificationType.PAYMENT_SUCCESS);
 
         return paymentMapper.toResponse(savedPayment);
     }

@@ -30,6 +30,8 @@ public class ProductImagesServiceImpl implements ProductImagesService {
         ProductEntity product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.PRODUCT_NOT_FOUND));
 
+        verifyProductOwnership(product);
+
         // İlk şəkildirsə, məcbur əsas şəkil (primary) edirik
         List<ProductImageEntity> existingImages = imageRepository.findByProduct_IdOrderBySortOrderAsc(product.getId());
         boolean isPrimary = request.isPrimaryImage();
@@ -63,6 +65,8 @@ public class ProductImagesServiceImpl implements ProductImagesService {
         ProductImageEntity image = imageRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.VALIDATION_ERROR)); 
         
+        verifyProductOwnership(image.getProduct());
+        
         Long productId = image.getProduct().getId();
         boolean wasPrimary = image.isPrimaryImage();
         
@@ -84,6 +88,8 @@ public class ProductImagesServiceImpl implements ProductImagesService {
         ProductImageEntity image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.VALIDATION_ERROR)); 
                 
+        verifyProductOwnership(image.getProduct());
+                
         clearPrimary(image.getProduct().getId());
         image.setPrimaryImage(true);
         imageRepository.save(image);
@@ -94,6 +100,13 @@ public class ProductImagesServiceImpl implements ProductImagesService {
         if (primary != null) {
             primary.setPrimaryImage(false);
             imageRepository.save(primary);
+        }
+    }
+
+    private void verifyProductOwnership(ProductEntity product) {
+        String userIdStr = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!product.getSeller().getUser().getUserId().equals(Long.valueOf(userIdStr))) {
+            throw new IllegalArgumentException("You are not authorized to modify this product's images.");
         }
     }
 }

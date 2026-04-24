@@ -29,6 +29,7 @@ public class WishlistServiceImpl implements WishlistService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final WishlistMapper wishlistMapper;
+    private final com.example.trendybuy.service.ShoppingCartService shoppingCartService;
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
@@ -72,5 +73,20 @@ public class WishlistServiceImpl implements WishlistService {
 
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    public void moveWishlistItemToCart(Long productId) {
+        UserEntity currentUser = getCurrentUser();
+        
+        WishlistEntity existingItem = wishlistRepository.findByUser_UserIdAndProduct_Id(currentUser.getUserId(), productId)
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.VALIDATION_ERROR)); 
+
+        com.example.trendybuy.dto.request.CartItemRequest request = new com.example.trendybuy.dto.request.CartItemRequest();
+        request.setProductId(productId);
+        request.setQuantity(1);
+        shoppingCartService.addItemToCart(request);
+
+        wishlistRepository.delete(existingItem);
     }
 }

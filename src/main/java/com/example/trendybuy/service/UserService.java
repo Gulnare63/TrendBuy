@@ -37,7 +37,7 @@ public interface UserService {
     void markAllNotificationsRead(Long userId);
 
 
-    List<AddressResponse> getUserAddresses(Long userId);
+    List<ShoppingAddressResponse> getUserAddresses(Long userId);
 
 
     List<CartItemResponse> getUserCart(Long userId);

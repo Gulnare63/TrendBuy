@@ -19,8 +19,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // Public axtarış / list metodları (SecurityConfig-də icazə vermişik)
-    
+
     @GetMapping
     public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();

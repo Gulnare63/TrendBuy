@@ -46,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
     private static final long OTP_TTL = 300;
 
     private String generateOtp() {
-        return String.format("%06d", new Random().nextInt(999999));
+        return String.format("%06d", new java.security.SecureRandom().nextInt(999999));
     }
 
     @Override

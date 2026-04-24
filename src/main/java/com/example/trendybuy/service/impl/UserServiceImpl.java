@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
-    public List<AddressResponse> getUserAddresses(Long userId) {
+    public List<ShoppingAddressResponse> getUserAddresses(Long userId) {
         var user = findUser(userId);
         return addressMapper.toResponseList(user.getShoppingAddresses());
     }

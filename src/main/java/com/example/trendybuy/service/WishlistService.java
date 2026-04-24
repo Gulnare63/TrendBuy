@@ -10,4 +10,6 @@ public interface WishlistService {
     WishlistResponse toggleWishlist(Long productId);
 
     void clearWishlist();
+
+    void moveWishlistItemToCart(Long productId);
 }
